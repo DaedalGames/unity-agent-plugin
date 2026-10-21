@@ -1,0 +1,32 @@
+name: Validate manifests
+
+on:
+  pull_request:
+    paths:
+      - '.claude-plugin/**'
+      - '.codex-plugin/**'
+      - '.antigravity-plugin/**'
+      - '.agents/**'
+      - '.github/README.md'
+      - 'scripts/plugin-metadata.json'
+      - 'scripts/sync-manifests.mjs'
+      - '.github/workflows/validate-manifests.yml'
+  push:
+    branches: [main]
+    paths:
+      - '.claude-plugin/**'
+      - '.codex-plugin/**'
+      - '.antigravity-plugin/**'
+      - '.agents/**'
+      - 'scripts/plugin-metadata.json'
+
+jobs:
+  shared-values:
+    name: Manifests share one set of values
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: node scripts/sync-manifests.mjs --check
