@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 // Builds the zip uploaded to OpenAI's plugin portal for a Codex release.
 //
-//   node scripts/build-codex-zip.mjs            writes dist/unity-codex-<version>.zip
+//   node scripts/build-codex-zip.mts            writes dist/unity-codex-<version>.zip
 //
 // Run it on a clean checkout of merged main, after the version bump. The zip holds one folder,
 // `unity`, with the skills (no evals/ or tests/), both manifests, the README, the license and
@@ -13,16 +13,18 @@ import { tmpdir } from 'node:os';
 import { basename, join, resolve } from 'node:path';
 
 const root = resolve(import.meta.dirname, '..');
-const meta = JSON.parse(readFileSync(join(root, 'scripts/plugin-metadata.json'), 'utf8'));
+const meta: { version: string } = JSON.parse(
+  readFileSync(join(root, 'scripts/plugin-metadata.json'), 'utf8'),
+);
 
 // 1. The manifests must already carry the release version.
-execFileSync(process.execPath, [join(root, 'scripts/sync-manifests.mjs'), '--check'], {
+execFileSync(process.execPath, [join(root, 'scripts/sync-manifests.mts'), '--check'], {
   cwd: root,
   stdio: 'inherit',
 });
 const manifests = ['.codex-plugin/plugin.json', '.claude-plugin/plugin.json'];
 for (const file of manifests) {
-  const { version } = JSON.parse(readFileSync(join(root, file), 'utf8'));
+  const { version } = JSON.parse(readFileSync(join(root, file), 'utf8')) as { version: string };
   if (version !== meta.version) fail(`${file} is at ${version}, expected ${meta.version}`);
 }
 
@@ -54,8 +56,11 @@ try {
   const skills = readdirSync(join(pkg, 'skills')).filter((d) =>
     existsSync(join(pkg, 'skills', d, 'SKILL.md')),
   );
-  const codex = JSON.parse(readFileSync(join(pkg, '.codex-plugin/plugin.json'), 'utf8'));
-  for (const asset of [codex.interface?.logo, codex.interface?.composerIcon].filter(Boolean)) {
+  const codex = JSON.parse(readFileSync(join(pkg, '.codex-plugin/plugin.json'), 'utf8')) as {
+    interface?: { logo?: string; composerIcon?: string };
+  };
+  const assets = [codex.interface?.logo, codex.interface?.composerIcon];
+  for (const asset of assets.filter((a): a is string => typeof a === 'string')) {
     if (!existsSync(join(pkg, asset))) fail(`the Codex manifest references ${asset}, which is not in the package`);
   }
 
@@ -67,7 +72,8 @@ try {
   if (process.platform === 'linux') {
     execFileSync('zip', ['-r', '-X', '-q', out, 'unity'], { cwd: stage, stdio: 'inherit' });
   } else {
-    const tar = process.platform === 'win32' ? join(process.env.SystemRoot, 'System32', 'tar.exe') : 'tar';
+    const tar =
+      process.platform === 'win32' ? join(process.env.SystemRoot ?? 'C:\Windows', 'System32', 'tar.exe') : 'tar';
     execFileSync(tar, ['--format', 'zip', '-cf', out, 'unity'], { cwd: stage, stdio: 'inherit' });
   }
 
@@ -78,7 +84,7 @@ try {
   rmSync(stage, { recursive: true, force: true });
 }
 
-function fail(message) {
+function fail(message: string): never {
   console.error(`build-codex-zip: ${message}`);
   process.exit(1);
 }
