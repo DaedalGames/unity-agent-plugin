@@ -73,7 +73,7 @@ try {
     execFileSync('zip', ['-r', '-X', '-q', out, 'unity'], { cwd: stage, stdio: 'inherit' });
   } else {
     const tar =
-      process.platform === 'win32' ? join(process.env.SystemRoot ?? 'C:\Windows', 'System32', 'tar.exe') : 'tar';
+      process.platform === 'win32' ? join(process.env.SystemRoot ?? 'C:\\Windows', 'System32', 'tar.exe') : 'tar';
     execFileSync(tar, ['--format', 'zip', '-cf', out, 'unity'], { cwd: stage, stdio: 'inherit' });
   }
 

@@ -103,19 +103,28 @@ for (const { file, set } of targets) {
   else writeFileSync(file, after);
 }
 
-// The sample `agy plugin list` and `codex plugin list` output in the README shows the version.
+// The sample `codex plugin list` and `agy plugin list` output in the README shows the version.
+// Only those two lines are matched, so other version numbers in the README are left alone.
 const readme = '.github/README.md';
-const readmeText = readFileSync(readme, 'utf8');
-const stale = [...readmeText.matchAll(/\b0\.\d+\.\d+(?:-[a-z0-9.]+)?\b/g)]
-  .map((m) => m[0])
-  .filter((v) => v !== meta.version);
-if (stale.length > 0) {
-  if (check) drifted.push(`${readme} (shows ${[...new Set(stale)].join(', ')})`);
-  else writeFileSync(readme, readmeText.replaceAll(new RegExp(stale.map(escape).join('|'), 'g'), meta.version));
+// Group 1 is the text before the version, group 2 the version itself.
+const samples = [
+  /^(unity@unity-agent-plugin\s+installed, enabled\s+)(\S+)$/m,
+  /^(- unity \(enabled, )([^)]+)\)$/m,
+];
+let readmeText = readFileSync(readme, 'utf8').replace(/\r\n/g, '\n');
+const staleVersions = new Set<string>();
+for (const sample of samples) {
+  const match = sample.exec(readmeText);
+  if (!match) throw new Error(`${readme}: no line matches ${sample}; update the pattern in this script`);
+  const [, head, version] = match;
+  if (version === meta.version) continue;
+  staleVersions.add(version);
+  const start = match.index + head.length;
+  readmeText = readmeText.slice(0, start) + meta.version + readmeText.slice(start + version.length);
 }
-
-function escape(s: string): string {
-  return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+if (staleVersions.size > 0) {
+  if (check) drifted.push(`${readme} (sample output shows ${[...staleVersions].join(', ')})`);
+  else writeFileSync(readme, readmeText);
 }
 
 if (drifted.length > 0) {
