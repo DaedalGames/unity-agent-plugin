@@ -25,8 +25,12 @@ const targets = [
     },
   },
   {
+    // No category: agy 1.4 reports it as an unknown field, which fails `validate --strict`.
     file: '.antigravity-plugin/plugin.json',
-    set: (m) => assign(m, [...shared, 'category']),
+    set: (m) => {
+      assign(m, shared);
+      delete m.category;
+    },
   },
   {
     // The entry must not carry a version: plugin.json wins at install, and validate warns.
@@ -46,7 +50,7 @@ const targets = [
 ];
 
 // Where a key goes when a manifest doesn't have it yet, so new keys sit beside related ones.
-const anchors = { repository: 'homepage', license: 'repository', category: 'suggestedPrompts' };
+const anchors = { repository: 'homepage', license: 'repository' };
 
 function assign(manifest, keys) {
   for (const key of keys) setKey(manifest, key, structuredClone(meta[key]));
