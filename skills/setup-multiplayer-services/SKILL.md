@@ -14,6 +14,8 @@ description: Guides real-time online multiplayer with Unity Multiplayer Services
    - **Dedicated game server (`Unity.Services.Multiplayer.Server`):** [dgs-entrypoint.md](references/dgs-entrypoint.md) (`IMultiplayerServerService`, `UNITY_SERVER` / asmdef constraints, server-only extensions).
    - **Lower-level service clients:** [underlying-services.md](references/underlying-services.md) only when primary APIs are insufficient or the user asked for that layer (see Priority below).
 
+3. **Cloud link:** Multiplayer Services need the project linked to a Unity Cloud project (project ID) before any session, Relay, or matchmaking call works. If it is not linked, run `unity projects link cloud <path>`, with `--cloud-project <id>` to link an existing cloud project. Never hand-edit `ProjectSettings/ProjectSettings.asset` and never write an Editor-side linker script. If unsure of the command, use the unity-cli skill or `unity commands --grep link`.
+
 ## Priority: Multiplayer Sessions first
 
 When the task is **choosing** topology, discovery, match flow, or Netcode alignment—not only calling APIs—ground recommendations via [implementation-fit.md](references/implementation-fit.md) (conversation → project → short targeted questions).

@@ -18,6 +18,7 @@ description: Builds and operates live games with Unity Services. Use when the us
 | `com.unity.services.tooling` | 1.4.1 | Access Control and Game Overrides |
 | `com.unity.services.apis` | 1.1.1 | Generated REST clients for all UGS services |
 
+- [Link the Project to Unity Cloud](#link-the-project-to-unity-cloud)
 - [Initialization Pattern](#initialization-pattern)
 - [Package Map](#package-map)
 - [Architecture — How Packages Combine](#architecture--how-packages-combine)
@@ -28,6 +29,17 @@ description: Builds and operates live games with Unity Services. Use when the us
 - [Validation](#validation)
 - [Deployment Checklist](#deployment-checklist)
 - [Detailed References](#detailed-references)
+
+## Link the Project to Unity Cloud
+
+UGS needs the project linked to a Unity Cloud project (its project ID) before `UnityServices.InitializeAsync()` can work. Link it with the Unity CLI before writing service code:
+
+```bash
+unity projects link cloud <path>                        # create and link a cloud project
+unity projects link cloud <path> --cloud-project <id>   # link an existing cloud project
+```
+
+Never hand-edit `ProjectSettings/ProjectSettings.asset` and never write an Editor-side linker script. If unsure of the command, use the unity-cli skill or `unity commands --grep link`.
 
 ## Initialization Pattern
 
