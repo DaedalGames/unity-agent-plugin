@@ -7,5 +7,5 @@ building UI with UI Toolkit, uGUI or IMGUI, 2D sprites and tilemaps, physics, au
 post-processing, Shader Graph, multiplayer services, Vivox voice chat, in-app purchases and LevelPlay ads. The agent loads
 a skill only when your request needs it.
 
-Works with Claude Code, Codex, Grok and Antigravity. Install steps and usage are in the
+Install steps and usage are in the
 [full README](https://github.com/Unity-Technologies/unity-agent-plugin#readme).
